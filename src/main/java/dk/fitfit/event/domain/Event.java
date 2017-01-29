@@ -1,16 +1,16 @@
 package dk.fitfit.event.domain;
 
 public class Event {
-	private String event;
+	private String type;
 	private long timestamp;
-	private String payload;
+	private Object payload;
 
-	public String getEvent() {
-		return event;
+	public String getType() {
+		return type;
 	}
 
-	public void setEvent(String event) {
-		this.event = event;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public long getTimestamp() {
@@ -21,11 +21,11 @@ public class Event {
 		this.timestamp = timestamp;
 	}
 
-	public String getPayload() {
+	public Object getPayload() {
 		return payload;
 	}
 
-	public void setPayload(String payload) {
+	public void setPayload(Object payload) {
 		this.payload = payload;
 	}
 }
