@@ -5,6 +5,11 @@ import dk.fitfit.event.repository.EventRepositoryInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Map;
+
 @Service
 public class EventService implements EventServiceInterface {
 	private final EventRepositoryInterface eventRepository;
@@ -20,8 +25,11 @@ public class EventService implements EventServiceInterface {
 	}
 
 	@Override
-	public Event save(String type, long timestamp, byte[] payloadAsString) {
-		return save(new Event(type, timestamp, payloadAsString));
+	public Event save(String type, long timestamp, Map<String, Object> payload) throws IOException {
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		ObjectOutputStream output = new ObjectOutputStream(b);
+		output.writeObject(payload);
+		return save(new Event(type, timestamp, b.toByteArray()));
 	}
 
 	@Override

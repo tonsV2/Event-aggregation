@@ -2,22 +2,31 @@ package dk.fitfit.event.resource;
 
 import dk.fitfit.event.domain.Event;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Map;
+
 public class EventResource {
 	private String type;
 	private long timestamp;
-	private Object payload;
+	private Map<String, Object> payload;
 
 	public EventResource() {
 	}
 
-	private EventResource(String type, long timestamp, String payload) {
+	private EventResource(String type, long timestamp, Map<String, Object> payload) {
 		this.type = type;
 		this.timestamp = timestamp;
 		this.payload = payload;
 	}
 
-	public static EventResource of(Event event) {
-		return new EventResource(event.getType(), event.getTimestamp(), event.getPayload().toString());
+	// TODO: This does not belong here...
+	public static EventResource of(Event event) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream ba = new ByteArrayInputStream(event.getPayload());
+		ObjectInputStream oba = new ObjectInputStream(ba);
+		Map<String, Object> payload = (Map<String, Object>) oba.readObject();
+		return new EventResource(event.getType(), event.getTimestamp(), payload);
 	}
 
 	public String getType() {
@@ -36,11 +45,11 @@ public class EventResource {
 		this.timestamp = timestamp;
 	}
 
-	public Object getPayload() {
+	public Map<String, Object> getPayload() {
 		return payload;
 	}
 
-	public void setPayload(Object payload) {
+	public void setPayload(Map<String, Object> payload) {
 		this.payload = payload;
 	}
 
