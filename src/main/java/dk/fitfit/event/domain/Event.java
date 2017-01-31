@@ -1,9 +1,33 @@
 package dk.fitfit.event.domain;
 
+import javax.persistence.*;
+
+@Entity
 public class Event {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 	private String type;
 	private long timestamp;
-	private Object payload;
+	@Lob
+	private byte[] payload;
+
+	public Event() {
+	}
+
+	public Event(String type, long timestamp, byte[] payload) {
+		this.type = type;
+		this.timestamp = timestamp;
+		this.payload = payload;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 
 	public String getType() {
 		return type;
@@ -21,11 +45,11 @@ public class Event {
 		this.timestamp = timestamp;
 	}
 
-	public Object getPayload() {
+	public byte[] getPayload() {
 		return payload;
 	}
 
-	public void setPayload(Object payload) {
+	public void setPayload(byte[] payload) {
 		this.payload = payload;
 	}
 }

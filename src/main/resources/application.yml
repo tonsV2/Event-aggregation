@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: Events...
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/events
+    username: events
+    password: events
+    driverClassName: org.postgresql.Driver
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
