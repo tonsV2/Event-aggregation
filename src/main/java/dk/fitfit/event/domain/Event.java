@@ -57,6 +57,7 @@ public class Event {
 	}
 
 	// TODO: Move to util package
+	// Inspiration: https://www.thecodingforums.com/threads/hashmap-conversion.388535/#post-2001548
 	private byte[] toByteArray(Map<String, Object> payload) throws IOException {
 		ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
 		ObjectOutputStream objectStream = new ObjectOutputStream(byteArrayStream);
@@ -65,6 +66,7 @@ public class Event {
 	}
 
 	// TODO: Move to util package
+	// Inspiration: https://www.thecodingforums.com/threads/hashmap-conversion.388535/#post-2001548
 	private Map<String, Object> toMap(byte[] payload) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(payload);
 		ObjectInputStream objectStream = new ObjectInputStream(byteArrayStream);
