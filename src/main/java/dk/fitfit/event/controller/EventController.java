@@ -45,13 +45,9 @@ public class EventController {
 
 	@GetMapping("/events")
 	public Map<String, Object> getEventsByStream() throws IOException, ClassNotFoundException {
-		String resourceName = "dsl/aggregation/imgAgg.json";
-		URL url = Resources.getResource(resourceName);
-		@SuppressWarnings("unchecked")
-		Map<String, Object> aggregation = mapper.readValue(url, Map.class);
+		Map<String, Object> aggregation = readDsl();
 		String eventType = aggregation.get("type").toString();
 		Supplier<Stream<Event>> events = () -> eventService.findByType(eventType);
-
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("type", eventType);
@@ -96,6 +92,14 @@ public class EventController {
 		}
 
 		return result;
+	}
+
+	private Map<String, Object> readDsl() throws IOException {
+		String resourceName = "dsl/aggregation/imgAgg.json";
+		URL url = Resources.getResource(resourceName);
+		@SuppressWarnings("unchecked")
+		Map<String, Object> map = mapper.readValue(url, Map.class);
+		return map;
 	}
 
 	private String getKey(List<String> indices, Map<String, Object> payload) {
