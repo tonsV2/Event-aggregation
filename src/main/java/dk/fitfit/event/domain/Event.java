@@ -20,7 +20,8 @@ public class Event {
 	private long timestamp;
 	private String indexId;
 
-	@Column(columnDefinition = "TEXT")
+// TODO: This defaults to varchar(255)... which probably is a bit too short... and the wrong type (should probably be byte[])... Time will tell
+//	@Column(columnDefinition = "TEXT")
 	private String payload;
 
 	@Transient

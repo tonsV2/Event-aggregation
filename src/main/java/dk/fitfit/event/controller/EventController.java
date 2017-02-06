@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.counting;
@@ -30,7 +31,7 @@ public class EventController {
 		this.eventService = eventService;
 	}
 
-	@PostMapping("/collect")
+	@PostMapping("/events")
 	public EventResource collect(@RequestBody EventResource eventResource) throws IOException, ClassNotFoundException {
 		Event save = eventService.save(eventResource.getType(), eventResource.getTimestamp(), eventResource.getIndexId(), eventResource.getPayload());
 		return EventResource.of(save);
@@ -97,8 +98,9 @@ public class EventController {
 		return result;
 	}
 
-	private String getKey(List<String> map, Map<String, Object> payload) {
-
-		return payload.get("lat") + "," + payload.get("long");
+	private String getKey(List<String> indices, Map<String, Object> payload) {
+		return indices.stream()
+				.map(k -> payload.get(k).toString())
+				.collect(Collectors.joining(","));
 	}
 }
