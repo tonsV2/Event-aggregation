@@ -2,7 +2,6 @@ package dk.fitfit.event.resource;
 
 import dk.fitfit.event.domain.Event;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class EventResource {
@@ -21,7 +20,7 @@ public class EventResource {
 		this.payload = payload;
 	}
 
-	public static EventResource of(Event event) throws IOException, ClassNotFoundException {
+	public static EventResource of(Event event) {
 		return new EventResource(event.getType(), event.getTimestamp(), event.getIndexId(), event.getPayload());
 	}
 

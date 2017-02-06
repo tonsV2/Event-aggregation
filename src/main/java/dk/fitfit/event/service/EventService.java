@@ -5,7 +5,6 @@ import dk.fitfit.event.repository.EventRepositoryInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -24,7 +23,7 @@ public class EventService implements EventServiceInterface {
 	}
 
 	@Override
-	public Event save(String type, long timestamp, String indexId, Map<String, Object> payload) throws IOException {
+	public Event save(String type, long timestamp, String indexId, Map<String, Object> payload) {
 		return save(new Event(type, timestamp, indexId, payload));
 	}
 

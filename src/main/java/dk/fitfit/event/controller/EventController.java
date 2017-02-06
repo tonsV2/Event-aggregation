@@ -32,19 +32,19 @@ public class EventController {
 	}
 
 	@PostMapping("/events")
-	public EventResource collect(@RequestBody EventResource eventResource) throws IOException, ClassNotFoundException {
+	public EventResource collect(@RequestBody EventResource eventResource) {
 		Event save = eventService.save(eventResource.getType(), eventResource.getTimestamp(), eventResource.getIndexId(), eventResource.getPayload());
 		return EventResource.of(save);
 	}
 
 	@GetMapping("/events/{id}")
-	public EventResource getEvents(@PathVariable long id) throws IOException, ClassNotFoundException {
+	public EventResource getEvents(@PathVariable long id) {
 		Event event = eventService.findOne(id);
 		return EventResource.of(event);
 	}
 
 	@GetMapping("/events")
-	public Map<String, Object> getEventsByStream() throws IOException, ClassNotFoundException {
+	public Map<String, Object> getEventsByStream() throws IOException {
 		Map<String, Object> aggregation = readDsl();
 		String eventType = aggregation.get("type").toString();
 		Supplier<Stream<Event>> events = () -> eventService.findByType(eventType);
