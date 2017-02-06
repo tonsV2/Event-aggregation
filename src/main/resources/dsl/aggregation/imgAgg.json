@@ -1,0 +1,6 @@
+{
+  "type": "CLICK_EVENT",
+  "count": "*",
+  "countBy": "*",
+  "map": ["lat", "long"]
+}

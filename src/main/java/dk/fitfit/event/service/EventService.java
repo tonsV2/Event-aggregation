@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 public class EventService implements EventServiceInterface {
@@ -23,8 +24,13 @@ public class EventService implements EventServiceInterface {
 	}
 
 	@Override
-	public Event save(String type, long timestamp, Map<String, Object> payload) throws IOException {
-		return save(new Event(type, timestamp, payload));
+	public Event save(String type, long timestamp, String indexId, Map<String, Object> payload) throws IOException {
+		return save(new Event(type, timestamp, indexId, payload));
+	}
+
+	@Override
+	public Stream<Event> findByType(String type) {
+		return eventRepository.findByType(type);
 	}
 
 	@Override

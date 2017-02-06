@@ -8,19 +8,21 @@ import java.util.Map;
 public class EventResource {
 	private String type;
 	private long timestamp;
+	private String indexId;
 	private Map<String, Object> payload;
 
 	public EventResource() {
 	}
 
-	private EventResource(String type, long timestamp, Map<String, Object> payload) {
+	private EventResource(String type, long timestamp, String indexId, Map<String, Object> payload) {
 		this.type = type;
 		this.timestamp = timestamp;
+		this.indexId = indexId;
 		this.payload = payload;
 	}
 
 	public static EventResource of(Event event) throws IOException, ClassNotFoundException {
-		return new EventResource(event.getType(), event.getTimestamp(), event.getPayload());
+		return new EventResource(event.getType(), event.getTimestamp(), event.getIndexId(), event.getPayload());
 	}
 
 	public String getType() {
@@ -37,6 +39,14 @@ public class EventResource {
 
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	public String getIndexId() {
+		return indexId;
+	}
+
+	public void setIndexId(String indexId) {
+		this.indexId = indexId;
 	}
 
 	public Map<String, Object> getPayload() {
