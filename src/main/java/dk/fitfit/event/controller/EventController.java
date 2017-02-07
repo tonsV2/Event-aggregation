@@ -1,6 +1,7 @@
 package dk.fitfit.event.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import dk.fitfit.event.domain.Event;
 import dk.fitfit.event.resource.EventResource;
@@ -38,16 +39,65 @@ public class EventController {
 	}
 
 	@GetMapping("/events/{id}")
-	public EventResource getEvents(@PathVariable long id) {
+	public EventResource getEvent(@PathVariable long id) {
 		Event event = eventService.findOne(id);
 		return EventResource.of(event);
 	}
 
-	@GetMapping("/events")
-	public Map<String, Object> getEventsByStream() throws IOException {
-		Map<String, Object> aggregation = readDsl();
+	@GetMapping("/heartbeat")
+	public Map<String, Object> getHeartbeat() throws IOException {
+		Map<String, Object> aggregation = readDsl("heartbeat");
 		String eventType = aggregation.get("type").toString();
-		Supplier<Stream<Event>> events = () -> eventService.findByType(eventType);
+		@SuppressWarnings("unchecked")
+		Map<String, String> span = (Map<String, String>) aggregation.get("span");
+		String target = span.get("target");
+		int limit = Integer.parseInt(span.get("limit"));
+
+		Stream<Event> eventStream = getEventStream(eventType);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("type", eventType);
+
+		Map<String, Object> spans = new HashMap<>();
+
+		eventStream.forEach(event -> {
+			@SuppressWarnings("unchecked")
+			List<Object> indices = (List<Object>) spans.get(event.getIndexId());
+			Map<String, Object> payload = event.getPayload();
+			if (indices == null) {
+				Map<String, String> spanMap = new HashMap<>();
+				spanMap.put("begin", payload.get(target).toString());
+				spanMap.put("duration", payload.get(target).toString());
+				spans.put(event.getIndexId(), Lists.newArrayList(spanMap));
+			} else {
+				@SuppressWarnings("unchecked")
+				Map<String, String> lastEntry = (Map<String, String>) indices.remove(indices.size() - 1);
+				int lastTimestamp = Integer.parseInt(lastEntry.get("begin"));
+				int currentTimestamp = Integer.parseInt(payload.get(target).toString());
+				if (currentTimestamp - lastTimestamp < limit) {
+					lastEntry.put("begin", lastEntry.get("begin"));
+					lastEntry.put("duration", currentTimestamp + "");
+					indices.add(lastEntry);
+					spans.put(event.getIndexId(), indices);
+				} else {
+					indices.add(lastEntry);
+					Map<String, String> spanMap = new HashMap<>();
+					spanMap.put("begin", payload.get(target).toString());
+					spanMap.put("duration", payload.get(target).toString());
+					indices.add(spanMap);
+					spans.put(event.getIndexId(), indices);
+				}
+			}
+		});
+
+		result.put("spans", spans);
+		return result;
+	}
+
+	@GetMapping("/imgAgg")
+	public Map<String, Object> getImgAgg() throws IOException {
+		Map<String, Object> aggregation = readDsl("imgAgg");
+		String eventType = aggregation.get("type").toString();
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("type", eventType);
@@ -55,14 +105,14 @@ public class EventController {
 		// Count
 		String count = aggregation.get("count").toString();
 		if (count != null && count.equals("*")) {
-			long totalEventCount = events.get().count();
+			long totalEventCount = getEventStream(eventType).count();
 			result.put("count", totalEventCount);
 		}
 
 		// CountBy
 		String countBy = aggregation.get("countBy").toString();
 		if (countBy != null && countBy.equals("*")) {
-			Map<String, Long> countByCollection = events.get().collect(groupingBy(Event::getIndexId, counting()));
+			Map<String, Long> countByCollection = getEventStream(eventType).collect(groupingBy(Event::getIndexId, counting()));
 			result.put("countBy", countByCollection);
 		}
 
@@ -71,11 +121,11 @@ public class EventController {
 		List<String> map = (List<String>) aggregation.get("map");
 		if (map != null) {
 			Map<String, Map<String, Long>> hashMap = new HashMap<>();
-			events.get().forEach(event -> {
+			getEventStream(eventType).forEach(event -> {
 				Map<String, Object> payload = event.getPayload();
 				String key = getKey(map, payload);
 				Map<String, Long> o = hashMap.get(event.getIndexId());
-				if(o == null) {
+				if (o == null) {
 					o = new HashMap<>();
 					o.put(key, 1L);
 				} else {
@@ -94,17 +144,22 @@ public class EventController {
 		return result;
 	}
 
-	private Map<String, Object> readDsl() throws IOException {
-		String resourceName = "dsl/aggregation/imgAgg.json";
+	private String getKey(List<String> indices, Map<String, Object> payload) {
+		return indices.stream()
+				.map(k -> payload.get(k).toString())
+				.collect(Collectors.joining(","));
+	}
+
+	private Map<String, Object> readDsl(String dsl) throws IOException {
+		String resourceName = "dsl/aggregation/" + dsl + ".json";
 		URL url = Resources.getResource(resourceName);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> map = mapper.readValue(url, Map.class);
 		return map;
 	}
 
-	private String getKey(List<String> indices, Map<String, Object> payload) {
-		return indices.stream()
-				.map(k -> payload.get(k).toString())
-				.collect(Collectors.joining(","));
+	private Stream<Event> getEventStream(String eventType) {
+		Supplier<Stream<Event>> events = () -> eventService.findByType(eventType);
+		return events.get();
 	}
 }

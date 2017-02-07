@@ -1,0 +1,7 @@
+{
+  "type": "HEARTBEAT_EVENT",
+  "span": {
+    "target": "timestamp",
+    "limit": "60"
+  }
+}
