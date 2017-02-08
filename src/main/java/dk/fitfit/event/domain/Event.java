@@ -18,7 +18,7 @@ public class Event {
 	private String type;
 	// TODO: Be more specific here... ts of creation, receive or something else
 	private long timestamp;
-	private String indexId;
+	private String objectId;
 
 // TODO: This defaults to varchar(255)... which probably is a bit too short... and the wrong type (should probably be byte[])... Time will tell
 //	@Column(columnDefinition = "TEXT")
@@ -30,10 +30,10 @@ public class Event {
 	public Event() {
 	}
 
-	public Event(String type, long timestamp, String indexId, Map<String, Object> payload) {
+	public Event(String type, long timestamp, String objectId, Map<String, Object> payload) {
 		this.type = type;
 		this.timestamp = timestamp;
-		this.indexId = indexId;
+		this.objectId = objectId;
 		this.payloadObj = payload;
 	}
 
@@ -83,12 +83,12 @@ public class Event {
 		this.timestamp = timestamp;
 	}
 
-	public String getIndexId() {
-		return indexId;
+	public String getObjectId() {
+		return objectId;
 	}
 
-	public void setIndexId(String indexId) {
-		this.indexId = indexId;
+	public void setObjectId(String objectId) {
+		this.objectId = objectId;
 	}
 
 	public Map<String, Object> getPayload() {

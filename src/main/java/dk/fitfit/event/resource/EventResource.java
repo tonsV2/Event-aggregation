@@ -7,21 +7,21 @@ import java.util.Map;
 public class EventResource {
 	private String type;
 	private long timestamp;
-	private String indexId;
+	private String objectId;
 	private Map<String, Object> payload;
 
 	public EventResource() {
 	}
 
-	private EventResource(String type, long timestamp, String indexId, Map<String, Object> payload) {
+	private EventResource(String type, long timestamp, String objectId, Map<String, Object> payload) {
 		this.type = type;
 		this.timestamp = timestamp;
-		this.indexId = indexId;
+		this.objectId = objectId;
 		this.payload = payload;
 	}
 
 	public static EventResource of(Event event) {
-		return new EventResource(event.getType(), event.getTimestamp(), event.getIndexId(), event.getPayload());
+		return new EventResource(event.getType(), event.getTimestamp(), event.getObjectId(), event.getPayload());
 	}
 
 	public String getType() {
@@ -40,12 +40,12 @@ public class EventResource {
 		this.timestamp = timestamp;
 	}
 
-	public String getIndexId() {
-		return indexId;
+	public String getObjectId() {
+		return objectId;
 	}
 
-	public void setIndexId(String indexId) {
-		this.indexId = indexId;
+	public void setObjectId(String objectId) {
+		this.objectId = objectId;
 	}
 
 	public Map<String, Object> getPayload() {
