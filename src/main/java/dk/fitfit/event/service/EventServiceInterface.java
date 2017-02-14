@@ -11,6 +11,6 @@ public interface EventServiceInterface {
 	Event findOne(long id);
 	Event save(String type, long timestamp, String indexId, Map<String, Object> payload);
 	Stream<Event> findByType(String type);
-	List<String> findObjectIdByType(String type);
+	List<String> findObjectIdsByType(String type);
 	Stream<Event> findByObjectId(String objectId);
 }

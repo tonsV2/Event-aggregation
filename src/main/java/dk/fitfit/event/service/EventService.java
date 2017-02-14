@@ -34,7 +34,7 @@ public class EventService implements EventServiceInterface {
 	}
 
 	@Override
-	public List<String> findObjectIdByType(String type) {
+	public List<String> findObjectIdsByType(String type) {
 		return eventRepository.findDistinctObjectIdByType(type);
 	}
 

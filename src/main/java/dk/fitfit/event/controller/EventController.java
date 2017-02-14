@@ -24,9 +24,7 @@ import static java.util.stream.Collectors.groupingBy;
 @RestController
 public class EventController {
 	private final EventServiceInterface eventService;
-	// TODO: Wrap this in a class... abstraction
-	private ObjectMapper mapper = new ObjectMapper();
-	private Map<String, Object> spans = new HashMap<>();
+	private final Map<String, Object> spanStorage = new HashMap<>();
 
 	@Autowired
 	public EventController(EventServiceInterface eventService) {
@@ -55,7 +53,7 @@ public class EventController {
 		String target = spanCmd.get("target");
 		int limit = Integer.parseInt(spanCmd.get("limit"));
 
-		List<String> objectIds = eventService.findObjectIdByType(eventType);
+		List<String> objectIds = eventService.findObjectIdsByType(eventType);
 		objectIds.forEach(oid -> {
 			Stream<Event> events = eventService.findByObjectId(oid);
 			Map<String, List<Map<String, String>>> span = getSpans(target, limit, events);
@@ -64,19 +62,23 @@ public class EventController {
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("type", eventType);
-		result.put("spans", spans);
+		result.put("spans", getStoredSpans());
 		return result;
 	}
 
+	private Map<String, Object> getStoredSpans() {
+		return spanStorage;
+	}
+
 	private void storeSpan(Map<String, List<Map<String, String>>> span) {
-		spans.putAll(span);
+		spanStorage.putAll(span);
 	}
 
 	private Map<String, List<Map<String, String>>> getSpans(String target, int limit, Stream<Event> eventStream) {
 		Map<String, List<Map<String, String>>> spans = new HashMap<>();
 		eventStream.forEach(event -> {
-			List<Map<String, String>> indices = spans.get(event.getObjectId());
 			Map<String, Object> payload = event.getPayload();
+			List<Map<String, String>> indices = spans.get(event.getObjectId());
 			if (indices == null) {
 				Map<String, String> spanMap = new HashMap<>();
 				spanMap.put("begin", payload.get(target).toString());
@@ -128,12 +130,12 @@ public class EventController {
 
 		// Map
 		@SuppressWarnings("unchecked")
-		List<String> map = (List<String>) aggregation.get("map");
-		if (map != null) {
+		List<String> mapCmd = (List<String>) aggregation.get("map");
+		if (mapCmd != null) {
 			Map<String, Map<String, Long>> hashMap = new HashMap<>();
 			getEventStream(eventType).forEach(event -> {
 				Map<String, Object> payload = event.getPayload();
-				String key = getKey(map, payload);
+				String key = getKey(mapCmd, payload);
 				Map<String, Long> o = hashMap.get(event.getObjectId());
 				if (o == null) {
 					o = new HashMap<>();
@@ -163,6 +165,8 @@ public class EventController {
 	private Map<String, Object> readDsl(String dsl) throws IOException {
 		String resourceName = "dsl/aggregation/" + dsl + ".json";
 		URL url = Resources.getResource(resourceName);
+		// TODO: Wrap this in a class... abstraction... autowire
+		ObjectMapper mapper = new ObjectMapper();
 		@SuppressWarnings("unchecked")
 		Map<String, Object> map = mapper.readValue(url, Map.class);
 		return map;
