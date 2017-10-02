@@ -33,6 +33,7 @@ public class EventController {
 
 	@PostMapping("/events")
 	public EventResource collect(@RequestBody EventResource eventResource) {
+		// TODO: Implement disassembler
 		Event save = eventService.save(eventResource.getType(), eventResource.getTimestamp(), eventResource.getObjectId(), eventResource.getPayload());
 		return EventResource.of(save);
 	}
@@ -141,12 +142,15 @@ public class EventController {
 					o = new HashMap<>();
 					o.put(key, 1L);
 				} else {
+					o.merge(key, 1L, (a, b) -> b + a);
+					/* TODO: .merge places the code below
 					Long countByIndex = o.get(key);
 					if (countByIndex == null) {
 						o.put(key, 1L);
 					} else {
 						o.put(key, 1L + countByIndex);
 					}
+					*/
 				}
 				hashMap.put(event.getObjectId(), o);
 			});
